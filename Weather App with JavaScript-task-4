@@ -1,0 +1,54 @@
+pip install requests
+pip install tkinter
+pip install messagebox
+import requests
+import tkinter as TK
+from tkinter import messagebox
+
+def FETCH_WEATHER(API_KEY_VALUE, CITY_NAME):
+    BASE_URL = "http://api.openweathermap.org/data/2.5/weather"
+    PARAMETERS = {
+        'q': CITY_NAME,
+        'appid': API_KEY_VALUE,
+        'units': 'metric'  
+    }
+
+    try:
+        RESPONSE = requests.get(BASE_URL, params=PARAMETERS)
+        DATA = RESPONSE.json()
+
+        if RESPONSE.status_code == 200:
+            TEMPERATURE_VAL = DATA['main']['temp']
+            DESCRIPTION_VAL = DATA['weather'][0]['description']
+            RESULT_TEXT = f'Temperature: {TEMPERATURE_VAL}°C\nDescription: {DESCRIPTION_VAL.capitalize()}'
+            return RESULT_TEXT
+        else:
+            return f'Error: {DATA["message"]}'
+    except Exception as EXCEPTION:
+        return f'An error occurred: {str(EXCEPTION)}'
+
+def WEATHER_BUTTON_CLICKED():
+    CITY_NAME = CITY_ENTRY.get()
+    API_KEY_VALUE = '789848c94ab037243ed265fe7bdbfbfe'
+
+    if not CITY_NAME or not API_KEY_VALUE:
+        messagebox.showwarning("Warning", "Please enter both city and API key.")
+        return
+
+    WEATHER_RESULT = FETCH_WEATHER(API_KEY_VALUE, CITY_NAME)
+    RESULT_LABEL.config(text=WEATHER_RESULT)
+
+WEATHER_APP = TK.Tk()
+WEATHER_APP.title("Weather App")
+TK.Label(WEATHER_APP, text="City:").grid(row=0, column=0, padx=10, pady=10)
+TK.Label(WEATHER_APP, text="API Key:").grid(row=1, column=0, padx=10, pady=10)
+CITY_ENTRY = TK.Entry(WEATHER_APP)
+CITY_ENTRY.grid(row=0, column=1, padx=10, pady=10)
+API_KEY_ENTRY = TK.Entry(WEATHER_APP)
+API_KEY_ENTRY.grid(row=1, column=1, padx=10, pady=10)
+RESULT_LABEL = TK.Label(WEATHER_APP, text="", wraplength=300)
+RESULT_LABEL.grid(row=2, column=0, columnspan=2, pady=10)
+GET_WEATHER_BUTTON = TK.Button(WEATHER_APP, text="Get Weather", command=WEATHER_BUTTON_CLICKED)
+GET_WEATHER_BUTTON.grid(row=3, column=0, columnspan=2, pady=10)
+
+WEATHER_APP.mainloop()
