@@ -1,0 +1,114 @@
+!pip install SpeechRecognition
+pip install pyttsx3
+import speech_recognition as SR
+import pyttsx3
+import datetime
+import webbrowser
+import random
+
+def VOCALIZE(text):
+    VOICE_ENGINE = pyttsx3.init()
+    VOICE_ENGINE.say(text)
+    VOICE_ENGINE.runAndWait()
+
+def FETCH_CURRENT_TIME():
+    return datetime.datetime.now().strftime("%H:%M")
+
+def FETCH_CURRENT_DATE():
+    return datetime.datetime.now().strftime("%Y-%m-%d")
+
+def FETCH_CURRENT_DAY():
+    return datetime.datetime.now().strftime("%A")
+
+def INTRODUCE_VIRTUAL_ASSISTANT():
+    VOCALIZE("I am a voice-activated assistant developed with Python. I can provide details, check the time, and more. How can I assist you?")
+
+def LAUNCH_WEBSITE(url):
+    webbrowser.open(url)
+
+def EXPLORE_WEB(query):
+    SEARCH_URL = f"https://www.google.com/search?q={query}"
+    LAUNCH_WEBSITE(SEARCH_URL)
+
+def PROVIDE_RANDOM_FACT():
+    FACTS = [
+        "The honeybee is the only insect that produces food eaten by humans.",
+        "Bananas are berries, but strawberries aren't.",
+        "The shortest war in history was between Britain and Zanzibar on August 27, 1896, lasting only 38-45 minutes.",
+        "Octopuses have three hearts: two pump blood to the gills, and one pumps it to the rest of the body.",
+        "A group of flamingos is called a 'flamboyance.'"
+    ]
+    return random.choice(FACTS)
+
+def PERFORM_MATH_CALCULATION(expression):
+    try:
+        result = eval(expression)
+        return result
+    except Exception as e:
+        return f"Error: {e}"
+
+def RECOGNIZE_AUDIO_INPUT():
+    RECOGNIZER = SR.Recognizer()
+
+    with SR.Microphone() as source:
+        print("Listening...")
+        RECOGNIZER.adjust_for_ambient_noise(source)
+        AUDIO = RECOGNIZER.listen(source)
+
+    try:
+        print("Recognizing...")
+        USER_INPUT = RECOGNIZER.recognize_google(AUDIO)
+        print("You said: {}".format(USER_INPUT))
+        return USER_INPUT.lower()
+    except SR.UnknownValueError:
+        print("Sorry, I could not comprehend what you said.")
+        return ""
+    except SR.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+        return ""
+
+def MAIN():
+    VOCALIZE("Greetings! I am your voice-activated assistant. How may I be of service today?")
+
+    while True:
+        USER_INPUT = RECOGNIZE_AUDIO_INPUT()
+
+        if "hello" in USER_INPUT:
+            VOCALIZE("Hello! How may I assist you?")
+        elif "goodbye" in USER_INPUT or "exit" in USER_INPUT:
+            VOCALIZE("Farewell! Have a wonderful day.")
+            break
+        elif "weather" in USER_INPUT:
+            VOCALIZE("I'm sorry, I don't have the capability to check the weather yet.")
+        elif "time" in USER_INPUT:
+            CURRENT_TIME_VALUE = FETCH_CURRENT_TIME()
+            VOCALIZE("The current time is {}".format(CURRENT_TIME_VALUE))
+        elif "date" in USER_INPUT:
+            CURRENT_DATE_VALUE = FETCH_CURRENT_DATE()
+            VOCALIZE("Today's date is {}".format(CURRENT_DATE_VALUE))
+        elif "day" in USER_INPUT:
+            CURRENT_DAY_VALUE = FETCH_CURRENT_DAY()
+            VOCALIZE("Today is {}".format(CURRENT_DAY_VALUE))
+        elif "introduce" in USER_INPUT or "who are you" in USER_INPUT:
+            INTRODUCE_VIRTUAL_ASSISTANT()
+        elif "open website" in USER_INPUT:
+            VOCALIZE("Certainly, which website would you like me to open?")
+            WEBSITE_QUERY = RECOGNIZE_AUDIO_INPUT()
+            LAUNCH_WEBSITE("https://www." + WEBSITE_QUERY + ".com")
+        elif "search" in USER_INPUT or "web search" in USER_INPUT:
+            VOCALIZE("What would you like me to search for?")
+            SEARCH_QUERY = RECOGNIZE_AUDIO_INPUT()
+            EXPLORE_WEB(SEARCH_QUERY)
+        elif "random fact" in USER_INPUT:
+            FACT = PROVIDE_RANDOM_FACT()
+            VOCALIZE(f"Here's a random fact: {FACT}")
+        elif "calculate" in USER_INPUT:
+            VOCALIZE("Certainly, what expression would you like me to calculate?")
+            MATH_EXPRESSION = RECOGNIZE_AUDIO_INPUT()
+            RESULT = PERFORM_MATH_CALCULATION(MATH_EXPRESSION)
+            VOCALIZE(f"The result is {RESULT}")
+        else:
+            VOCALIZE("Apologies, I didn't comprehend that. Could you please repeat?")
+
+if __name__ == "__main__":
+    MAIN()
